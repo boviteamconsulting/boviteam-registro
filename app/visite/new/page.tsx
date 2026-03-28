@@ -1,9 +1,4 @@
-import dynamic from 'next/dynamic';
-
-const NewVisitaClient = dynamic(
-  () => import('./NewVisitaClient'),
-  { ssr: false }
-);
+import NewVisitaClient from './NewVisitaClient';
 
 export default function NewVisitaPage() {
   return <NewVisitaClient />;
