@@ -1,0 +1,196 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { fetchClienteById } from '@/lib/clienti';
+import { fetchVisiteByClienteId } from '@/lib/visite';
+import { Cliente, Visita } from '@/lib/types';
+import { CategoriaBadgeComponent, StatoBadgeComponent } from '@/components/Badges';
+
+function formatDate(dateStr?: string | null) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('it-IT');
+}
+
+function formatTime(timeStr?: string | null) {
+  if (!timeStr) return '';
+  return timeStr;
+}
+
+export default function ClientePage() {
+  const params = useParams();
+  const router = useRouter();
+  const clienteId = params.id as string;
+
+  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [visite, setVisite] = useState<Visita[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [clienteData, visitData] = await Promise.all([
+          fetchClienteById(clienteId),
+          fetchVisiteByClienteId(clienteId),
+        ]);
+        setCliente(clienteData);
+        setVisite(visitData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, [clienteId]);
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto p-4 flex items-center justify-center min-h-screen">
+        <div className="text-lg text-brand-gray">Caricamento...</div>
+      </div>
+    );
+  }
+
+  if (!cliente) {
+    return (
+      <div className="max-w-2xl mx-auto p-4">
+        <p className="text-brand-gray">Cliente non trovato</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
+      {/* Client Info */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-brand-burgundy font-league-spartan">
+              {cliente.intestazione_cliente}
+            </h1>
+            {cliente.referente && (
+              <p className="text-brand-gray mt-1">Referente: {cliente.referente}</p>
+            )}
+          </div>
+          <Link href={`/clienti/${cliente.id}/edit`} className="bg-brand-green text-white px-4 py-2 rounded font-semibold hover:bg-opacity-90 whitespace-nowrap">
+            Modifica
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          {cliente.telefono && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Telefono</div>
+              <a href={`tel:${cliente.telefono}`} className="text-brand-green hover:underline">
+                {cliente.telefono}
+              </a>
+            </div>
+          )}
+          {cliente.email && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Email</div>
+              <a href={`mailto:${cliente.email}`} className="text-brand-green hover:underline">
+                {cliente.email}
+              </a>
+            </div>
+          )}
+          {cliente.indirizzo && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Indirizzo</div>
+              <p>{cliente.indirizzo}</p>
+            </div>
+          )}
+          {cliente.comune && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Comune</div>
+              <p>{cliente.comune}</p>
+            </div>
+          )}
+          {cliente.provincia && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Provincia</div>
+              <p>{cliente.provincia}</p>
+            </div>
+          )}
+          {cliente.zona && (
+            <div>
+              <div className="font-semibold text-brand-burgundy">Zona</div>
+              <p>{cliente.zona}</p>
+            </div>
+          )}
+          {cliente.note_cliente && (
+            <div className="sm:col-span-2">
+              <div className="font-semibold text-brand-burgundy">Note</div>
+              <p className="text-brand-gray">{cliente.note_cliente}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex gap-2 text-sm">
+          <span className={`px-3 py-1 rounded ${cliente.cliente_attivo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            {cliente.cliente_attivo ? 'Attivo' : 'Inattivo'}
+          </span>
+        </div>
+      </div>
+
+      {/* New Visit Button */}
+      <Link href={`/visite/new?cliente=${cliente.id}`} className="block bg-brand-burgundy text-white text-center font-semibold py-4 rounded-lg hover:bg-opacity-90 shadow-md">
+        Nuova Visita
+      </Link>
+
+      {/* Visit History */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-lg font-bold text-brand-burgundy mb-4 font-league-spartan">
+          Cronologia Visite ({visite.length})
+        </h2>
+
+        {visite.length === 0 ? (
+          <p className="text-brand-gray text-sm">Nessuna visita registrata</p>
+        ) : (
+          <div className="space-y-4">
+            {visite.map(visita => (
+              <Link key={visita.id} href={`/visite/${visita.id}`} className="block p-4 bg-brand-cream rounded-lg hover:bg-opacity-50 border-l-4 border-brand-green">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="flex-1">
+                    <div className="font-semibold mb-2">
+                      {formatDate(visita.data_visita)} {formatTime(visita.ora_visita)}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {visita.categoria && <CategoriaBadgeComponent categoria={visita.categoria} />}
+                      {visita.stato_visita && <StatoBadgeComponent stato={visita.stato_visita} />}
+                    </div>
+                    {visita.esito_visita && (
+                      <div className="text-sm text-brand-gray mb-1">
+                        <strong>Esito:</strong> {visita.esito_visita}
+                      </div>
+                    )}
+                    {visita.note_visita && (
+                      <div className="text-sm text-brand-gray mb-1">
+                        <strong>Note:</strong> {visita.note_visita}
+                      </div>
+                    )}
+                    {visita.prossima_azione && (
+                      <div className="text-sm text-brand-gray mb-1">
+                        <strong>Prossima azione:</strong> {visita.prossima_azione}
+                      </div>
+                    )}
+                    {visita.data_prossimo_contatto && (
+                      <div className="text-sm text-brand-green font-semibold">
+                        📅 Prossimo contatto: {formatDate(visita.data_prossimo_contatto)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-xs text-brand-gray">→</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

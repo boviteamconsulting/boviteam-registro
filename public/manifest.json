@@ -1,0 +1,58 @@
+{
+  "name": "Boviteam Registro Visite",
+  "short_name": "Boviteam",
+  "description": "Visit register for farms - mobile-first PWA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F7F5F0",
+  "theme_color": "#1E6B3A",
+  "dir": "ltr",
+  "lang": "it-IT",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["productivity"],
+  "shortcuts": [
+    {
+      "name": "Nuovo Cliente",
+      "short_name": "Cliente",
+      "description": "Crea un nuovo cliente",
+      "url": "/clienti/new",
+      "icons": []
+    },
+    {
+      "name": "Nuova Visita",
+      "short_name": "Visita",
+      "description": "Registra una nuova visita",
+      "url": "/visite/new",
+      "icons": []
+    }
+  ]
+}

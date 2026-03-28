@@ -1,0 +1,12 @@
+{
+  "project_id": "your-project-id",
+  "db": {
+    "port": 5432,
+    "major_version": 15
+  },
+  "functions": [
+    {
+      "import_map": "functions/import_map.json"
+    }
+  ]
+}
