@@ -1,9 +1,9 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormVisita } from '@/components/FormVisita';
+
+export const dynamic = 'force-dynamic';
 
 export default function NewVisitaPage() {
   const router = useRouter();
